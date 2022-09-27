@@ -5,6 +5,6 @@ tmp_file1=$(mktemp -p ~)
 tmp_file2=$(mktemp -p ~)
 trap "rm $tmp_file1 $tmp_file2" EXIT
 dir_path=$(dirname "$0")
-$dir_path/getJobID.sh > $tmp_file1
-cat $tmp_file1|xargs -n 1| awk '{print $1" "NR}'|xargs -n 2 -P 8 $dir_path/getJobName.sh | sort -k 2 -n | cut -d " " -f 1 > $tmp_file2
+$dir_path/ql > $tmp_file1
+cat $tmp_file1|xargs -n 1| awk '{print $1" "NR}'|xargs -n 2 -P 8 $dir_path/qn | sort -k 2 -n | cut -d " " -f 1 > $tmp_file2
 paste $tmp_file1 $tmp_file2

@@ -5,4 +5,4 @@ tmp_file=$(mktemp -p ~)
 trap "rm $tmp_file" EXIT
 qstat -u $USER > $tmp_file
 dir_path=$(dirname "$0")
-$dir_path/getJobID.sh | xargs qdel
+$dir_path/ql | xargs qdel
