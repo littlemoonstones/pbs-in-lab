@@ -37,7 +37,7 @@ ql
 
 `qn`
 ```bash
-ql 100
+qn 100
 ```
 > query your job name by given job id 100
 ---
