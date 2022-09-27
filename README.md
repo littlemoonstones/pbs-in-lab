@@ -32,7 +32,7 @@ qd 10 100
 ```bash
 ql
 ```
-> delete your all jobs
+> list your all job id
 ---
 
 `qn`
