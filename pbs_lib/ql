@@ -1,0 +1,8 @@
+#!/bin/bash
+# List all job id
+
+tmp_user=$USER
+tmp_file=$(mktemp -p ~)
+trap "rm $tmp_file" EXIT
+qstat -u $tmp_user  > $tmp_file
+awk '(NR>5) {print($1)}' $tmp_file|sed 's/\([0-9]\+\).*/\1/'

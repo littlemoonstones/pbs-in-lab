@@ -1,0 +1,16 @@
+#!/bin/bash
+# Delete jobs by given two id(start and end)
+
+if [ $# -ne 2 ]; then
+    echo "Illegal number of parameters"
+    exit 1
+fi
+dir_path=$(dirname "$0")
+BEGIN=$1
+END=$2
+$dir_path/getJobID.sh $USER | while read job_id;
+do
+    if [[ $BEGIN -le $job_id && $job_id -le $END ]]; then
+        qdel $job_id
+    fi
+done

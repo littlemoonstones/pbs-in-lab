@@ -1,0 +1,9 @@
+#!/bin/bash
+# Query job name by given a job id
+
+job_id=$1
+order=$2
+tmpfile=$(mktemp -p ~)
+trap "rm $tmpfile" EXIT
+tracejob $job_id  > $tmpfile
+cat $tmpfile |grep "job name"|sed "s/.*job name = \(.*\),.*/\1 $2/"
