@@ -14,17 +14,26 @@ git pull && ./install.sh
 ```
 
 ## Usage
-There are 5 commands:
-  1. `qda`: Delete all jobs
-  2. `qd`: Delete jobs by given two id(start and end)
-  3. `ql`: List all job id
-  4. `qn`: Query job name by given a job id
-  5.  `qln`: List all job id and names
+There are serveral commands:
+  1. `qcreate`: Create job file(cpu/gpu)
+  2. `qdelall`: Delete all jobs
+  3. `qd`: Delete jobs by given two id(start and end)
+  4. `ql`: List all job id
+  5. `qn`: Query job name by given a job id
+  6.  `qln`: List all job id and names
+  7.  `ex2f`: Remove the lines by a file
 
 ## Example
-`qda`
+`qcreate`
 ```bash
-qda
+qcreate
+```
+> List all job id and names
+---
+
+`qdelall`
+```bash
+qdelall
 ```
 > delete your all jobs
 ---
@@ -54,4 +63,36 @@ qn 100
 qln
 ```
 > List all job id and names
+---
+
+`ex2f`
+
+```bash
+ex2f -s file_1.txt -e file_2.txt > output.txt
+```
+
+#### file_1.txt
+```txt
+test_101
+test_123
+test_131
+test_362
+test_594
+```
+
+#### file_2.txt
+```txt
+test_123
+test_362
+```
+
+#### output.txt
+```txt
+test_101
+test_131
+test_594
+```
+
+> - `-s, --source`: source file
+> - `-e, --exclusive`: those text in the file you want to exculde
 ---

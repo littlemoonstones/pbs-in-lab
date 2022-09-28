@@ -1,0 +1,18 @@
+#!/usr/bin/python3
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("-s", "--source",type=str, help="source")
+parser.add_argument("-e", "--exculsive",type=str, help="exclusive")
+args = parser.parse_args()
+
+source_set = set()
+with open(args.source, "r")as fs:
+    for s in fs.readlines():
+        source_set.add(int(s.replace('\n', '')))
+
+with open(args.exculsive, "r")as fs:
+    for s in fs.readlines():
+        source_set.remove(int(s.replace('\n', '')))
+
+for s in source_set:
+    print(s)

@@ -1,0 +1,13 @@
+#!/bin/bash
+# Delete all jobs
+
+# reference: https://stackoverflow.com/questions/226703/how-do-i-prompt-for-yes-no-cancel-input-in-a-linux-shell-script
+dir_path=$(dirname "$0")
+while true; do
+    read -p "Do you wish to delete all jobs?(y/n) " yn
+    case $yn in
+        [Yy]* ) $dir_path/ql | xargs qdel ; break;;
+        [Nn]* ) exit;;
+        * ) echo "Please answer yes or no.";;
+    esac
+done
