@@ -1,0 +1,6 @@
+module load qchem
+
+export QCSCRATCH=/tmp/$PBS_JOBID
+mkdir -p $QCSCRATCH
+qchem -nt CORES NAME.qcin NAME.q.out
+rm -r $QCSCRATCH

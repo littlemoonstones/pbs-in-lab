@@ -10,6 +10,6 @@ else
 fi
 
 echo "copy files to $HOME/bin/"
-if chmod +x pbs_lib/* && cp pbs_lib/* ~/bin/; then
+if chmod +x pbs_lib/* && cp -r pbs_lib/* ~/bin/; then
     echo "Done"
 fi

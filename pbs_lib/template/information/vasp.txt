@@ -1,0 +1,4 @@
+module load vasp
+
+usecpus=`cat $PBS_NODEFILE |wc -l`
+mpirun -np $usecpus vasp

@@ -1,55 +1,147 @@
 #!/bin/bash
 job_file="template.job"
+template_folder=$(dirname "$0")/template
 
-# Select gpu or cpu
-echo -n "Do you want to use gpu?(y/n) "
-read -r use_gpu
-if [[ $use_gpu = "y" ]]; then
-    echo "#PBS -l select=1:ncpus=8:ngpus=1" > $job_file
-    echo "#PBS -q gpu" >> $job_file
-else
-    echo "How many cores of CPU do you need?"
-    
+# global varaibles
+job_name=""
+cores=0
+work_dir=""
+conda_name=""
+
+function askCores(){
+    max=$1
+    echo "How many cores of CPU do you need?" 
     # reference: https://stackoverflow.com/questions/50521798/how-to-check-if-a-number-is-within-a-range-in-shell
     while :; do
-        read -p "Enter the number of cores(1-64): " cores
+        read -p "Enter the number of cores(1-$max): " cores
         [[ $cores =~ ^[0-9]+$ ]] || { echo "Enter a valid number"; continue; }
-        if ((1 <= cores && cores <= 64)); then
+        if ((1 <= cores && cores <= max)); then
             break;
         else
             echo "number out of range, try again"
         fi
     done
+}
 
-    echo "#PBS -l select=1:ncpus=$cores:mpiprocs=1:ompthreads=$cores" > $job_file
-    echo "#PBS -q workq" >> $job_file
+function askWorkDir(){
+    echo "Where does the folder your program run in?"
+    echo "0) same as the path of job file: \$PBS_O_WORKDIR" 
+    echo "1) the current folder: $PWD"
+    echo "2) the parent of the folder: $(dirname $PWD)"
+    echo "3) others"
+    while :; do
+        echo -n "Enter your index: "
+        read -r index
+        case $index in
+            "0")
+            work_dir='\$PBS_O_WORKDIR'
+            break
+            ;;
+            "1")
+            work_dir="$PWD"
+            break
+            ;;
+            "2")
+            work_dir="$(dirname $PWD)"
+            break
+            ;;
+            "3")
+            echo -n "Enter your path: "
+            read -r work_dir
+            break
+            ;;
+            *) echo "invalid input" ;;
+        esac
+    done
+}
+
+function askCondaEnv(){
+    while :; do
+        read -p "Does your program need to use conda?(y/n) " yn
+        case $yn in
+        [Yy]* )
+            read -p "Please enter your name of conda enviroment: " conda_name
+            break;;
+        [Nn]* ) break;;
+        * ) echo "Please answer yes or no.";;
+    esac
+    done
+}
+
+function askJobName(){
+    echo -n "Your job name: "
+    read -r job_name
+}
+
+askJobName
+askWorkDir
+askCondaEnv
+
+if [ -z "$conda_name" ]; then
+    conda_activate=""
+    conda_deactivate=""
+else
+    conda_activate="conda activate $conda_name"
+    conda_deactivate="conda deactivate"
 fi
-echo "#PBS -j oe" >> $job_file
 
-# Ask Job Name
-echo -n "Your job name: "
-read -r job_name
-echo -n "Your conda environment name: "
-read -r env_name
+echo "Do you need any other of softwares?"
+echo "0) No"
+echo "1) Yes, QChem"
+echo "2) Yes, VASP"
+while :; do
+    read -p "Enter your index: " index
+    case "$index" in
+    # No
+    "0") 
+        # Select gpu or cpu
+        echo -n "Do you want to use gpu?(y/n) "
+        read -r use_gpu
+        if [[ $use_gpu = "y" ]]; then
+            header="$template_folder/headers/gpu.txt"
+            askCores 8
+        else
+            header="$template_folder/headers/cpu.txt"
+            askCores 64
+        fi
+        export_string=""
+        export_string="export PYTHONPATH=\$PYTHONPATH:WORKDIR\n"
+        export_string="${export_string}export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:${HOME}/anaconda3/lib/\n"
+        export_string="${export_string}source ~/.bashrc\n"
+        break
+        ;;
+    # QChem
+    "1")
+        header="$template_folder/headers/cpu.txt" 
+        program="$template_folder/information/qchem.txt"
 
-echo "#PBS -N $job_name" >> $job_file
-echo "" >> $job_file
-echo "export PYTHONPATH=\$PYTHONPATH:$PWD" >> $job_file
-echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:${HOME}/anaconda3/lib/" >> $job_file
-echo "source ~/.bashrc" >> $job_file
-echo "cd $PWD" >> $job_file
-echo "conda activate $env_name" >> $job_file
-echo "" >> $job_file
-echo 'echo "=========================================================="' >> $job_file
-echo 'echo "Starting on : $(date)"' >> $job_file
-echo 'echo "Running on node : $(hostname)"' >> $job_file
-echo 'echo "file directory : $(pwd)"' >> $job_file
-echo 'echo "file job ID : $PBS_JOBID"' >> $job_file
-echo 'echo "=========================================================="' >> $job_file
-echo "## write donw your command..." >> $job_file
-echo "" >> $job_file
+        askCores 64
+        break
+        ;;
+    # VASP
+    "2") 
+        header="$template_folder/headers/mpi.txt"
+        program="$template_folder/information/vasp.txt"
 
-echo 'echo "Job Ended at $(date)"' >> $job_file
-echo 'echo "======================================================="' >> $job_file
+        askCores 64
+        break
+        ;;
+    *) echo "invalid input" ;;
+    esac
+done
+
+echo "#!/usr/bin/bash" > $job_file
+cat $header >> $job_file
+echo "cd WORKDIR" >> $job_file
+[ -z "$export_string" ] || printf "%b" "$export_string" >> $job_file
+[ -z "$conda_activate" ] || echo "$conda_activate" >> $job_file
+cat $template_folder/information/start.txt >> $job_file
 echo "" >> $job_file
-echo "conda deactivate" >> $job_file
+[ -z "$program" ] || cat $program >> $job_file
+echo "" >> $job_file
+cat $template_folder/information/end.txt >> $job_file
+[ -z "$conda_deactivate" ] || echo "$conda_deactivate" >> $job_file
+
+sed -i "s/CORES/$cores/g" $job_file
+sed -i "s/NAME/$job_name/g" $job_file
+sed -i "s|WORKDIR|$work_dir|g" $job_file

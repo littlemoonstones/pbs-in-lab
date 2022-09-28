@@ -1,0 +1,6 @@
+echo "=========================================================="
+echo "Starting on : $(date)"
+echo "Running on node : $(hostname)"
+echo "Current directory : $(pwd)"
+echo "Current job ID : $PBS_JOBID"
+echo "=========================================================="

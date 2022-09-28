@@ -1,0 +1,4 @@
+#PBS -l select=1:ncpus=CORES:mpiprocs=CORES:ompthreads=1
+#PBS -q workq
+#PBS -j oe
+#PBS -N NAME
