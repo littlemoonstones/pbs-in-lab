@@ -15,7 +15,7 @@ git pull && ./install.sh
 
 ## Usage
 There are serveral commands:
-  1. `qcreate`: Create job file(cpu/gpu)
+  1. `qcreate`: Create a job file(cpu/gpu)
   2. `qdelall`: Delete all jobs
   3. `qd`: Delete jobs by given two id(start and end)
   4. `ql`: List all job id
@@ -28,7 +28,7 @@ There are serveral commands:
 ```bash
 qcreate
 ```
-> List all job id and names
+> Create a job file(cpu/gpu) step by step
 ---
 
 `qdelall`
