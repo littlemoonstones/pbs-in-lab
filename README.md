@@ -6,6 +6,13 @@ cd pbs-in-lab
 chmod +x install.sh && ./install.sh
 cd ~ && source .bashrc
 ```
+
+## Update
+Go to the `pbs-in-lab` folder:
+```bash
+git pull $ ./install.sh
+```
+
 ## Usage
 There are 5 commands:
   1. `qda`: Delete all jobs
