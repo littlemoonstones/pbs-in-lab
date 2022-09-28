@@ -10,7 +10,7 @@ cd ~ && source .bashrc
 ## Update
 Go to the `pbs-in-lab` folder:
 ```bash
-git pull $ ./install.sh
+git pull && ./install.sh
 ```
 
 ## Usage
