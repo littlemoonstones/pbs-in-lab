@@ -1,0 +1,46 @@
+#!/bin/bash
+tmp_file=$(mktemp -p .)
+users=$(mktemp -p .)
+nums=$(mktemp -p .)
+job_num=$(mktemp -p .)
+tmp1=$(mktemp -p .)
+trap "rm $tmp_file $users $nums $job_num $tmp1" EXIT
+
+function sum_cpu(){
+    qstat -u $1|awk 'NR>5 {x+=$7}END {print x}'
+}
+
+function sum_job(){
+  grep $1 $tmp_file|wc -l
+}
+
+isShowAll=false
+while getopts 'a' OPT; do
+    case $OPT in
+        a) isShowAll=true;;
+        ?) echo "invalid argument";;
+    esac
+done
+
+qstat > $tmp_file
+if [[ $isShowAll = "true" ]]; then
+    awk 'NR>2 {print $3}' $tmp_file|sort|uniq > $users
+else
+    echo $USER > $users
+fi
+
+cat $users|while read user;do sum_cpu $user; done > $nums
+cat $users|while read user;do sum_job $user; done > $job_num
+
+user_length=$(wc -L < $users)
+ncpus_length=$(( $(wc -L < $nums) + 2))
+njobs_length=$(( $(wc -L < $job_num) + 2))
+user_header=$(printf -- '-%.0s' $(eval echo {1..$user_length}))
+ncpus_header=$(printf -- '-%.0s' $(eval echo {1..$ncpus_length}))
+njobs_header=$(printf -- '-%.0s' $(eval echo {1..$njobs_length}))
+
+# Create tmp file
+echo "User,ncpus,njobs" > $tmp1
+echo "$user_header,$ncpus_header,$njobs_header" >> $tmp1
+paste -d, $users $nums $job_num >> $tmp1
+column -t -s "," $tmp1

@@ -16,12 +16,13 @@ git pull && ./install.sh
 ## Usage
 There are serveral commands:
   1. `qcreate`: Create a job file(cpu/gpu)
-  2. `qdelall`: Delete all jobs
-  3. `qd`: Delete jobs by given two id(start and end)
-  4. `ql`: List all job id
-  5. `qn`: Query job name by given a job id
-  6.  `qln`: List all job id and names
-  7.  `ex2f`: Remove the lines by a file
+  2. `qcount`: Count the number of cpu cores and jobs for the user or all users
+  3. `qdelall`: Delete all jobs
+  4. `qd`: Delete jobs by given two id(start and end)
+  5. `ql`: List all job id
+  6. `qn`: Query job name by given a job id
+  7.  `qln`: List all job id and names
+  8.  `ex2f`: Remove the lines by a file
 
 ## Example
 `qcreate`
@@ -29,6 +30,18 @@ There are serveral commands:
 qcreate
 ```
 > Create a job file(cpu/gpu) step by step
+---
+
+`qcount`
+```bash
+qcount
+```
+> Count the the number of cpu cores and jobs the user uses
+
+```bash
+qcount -a
+```
+> Count the the number of cpu cores and jobs "all" user use separately
 ---
 
 `qdelall`
