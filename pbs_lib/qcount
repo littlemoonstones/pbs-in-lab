@@ -2,17 +2,24 @@
 tmp_file=$(mktemp -p .)
 users=$(mktemp -p .)
 nums=$(mktemp -p .)
-job_num=$(mktemp -p .)
-tmp1=$(mktemp -p .)
-trap "rm $tmp_file $users $nums $job_num $tmp1" EXIT
+# tmp1=$(mktemp -p .)
+trap "rm $tmp_file $users $nums" EXIT
 
-function sum_cpu(){
-    qstat -u $1|awk 'NR>5 {x+=$7}END {print x}'
+function sum_job_cpu(){
+    array=($1)
+    user=${array[0]}
+    # $6: njobs
+    # $7: ncpus
+    qstat -u $user|awk 'NR>5 {x+=$6;y+=$7}END {print x,y}'|xargs -i echo {} ${array[1]}
 }
 
-function sum_job(){
-  grep $1 $tmp_file|wc -l
+function makeDashedLine(){
+    length=$1
+    printf -- '-%.0s' $(eval echo {1..$length})
 }
+
+export -f sum_job_cpu
+export -f makeDashedLine
 
 isShowAll=false
 while getopts 'a' OPT; do
@@ -29,18 +36,18 @@ else
     echo $USER > $users
 fi
 
-cat $users|while read user;do sum_cpu $user; done > $nums
-cat $users|while read user;do sum_job $user; done > $job_num
+cat $users| awk '{print $1" "NR}' | xargs -n2 -P8 -I{} bash -c 'sum_job_cpu "{}"'| sort -k 3 -n|cut -d " " -f 1,2|tr " " "," > $nums
 
 user_length=$(wc -L < $users)
-ncpus_length=$(( $(wc -L < $nums) + 2))
-njobs_length=$(( $(wc -L < $job_num) + 2))
-user_header=$(printf -- '-%.0s' $(eval echo {1..$user_length}))
-ncpus_header=$(printf -- '-%.0s' $(eval echo {1..$ncpus_length}))
-njobs_header=$(printf -- '-%.0s' $(eval echo {1..$njobs_length}))
+njobs_length=$(( $(awk -F, '{print $1}' $nums | wc -L) + 2))
+ncpus_length=$(( $(awk -F, '{print $2}' $nums | wc -L) + 2))
 
-# Create tmp file
-echo "User,ncpus,njobs" > $tmp1
-echo "$user_header,$ncpus_header,$njobs_header" >> $tmp1
-paste -d, $users $nums $job_num >> $tmp1
-column -t -s "," $tmp1
+user_header=$(makeDashedLine $user_length)
+ncpus_header=$(makeDashedLine $ncpus_length)
+njobs_header=$(makeDashedLine $njobs_length)
+
+# generate tmp result file
+echo "User,njobs,ncpus," > $tmp_file
+echo "$user_header,$njobs_header,$ncpus_header" >> $tmp_file
+paste -d, $users $nums >> $tmp_file
+column -t -s "," $tmp_file
