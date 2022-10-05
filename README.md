@@ -15,24 +15,24 @@ git pull && ./install.sh
 
 ## Usage
 There are serveral commands:
-  1. `qcreate`: Create a job file(cpu/gpu)
-  2. `qcount`: Count the number of cpu cores and jobs for the user or all users
-  3. `qdelall`: Delete all jobs
-  4. `qd`: Delete jobs by given two id(start and end)
-  5. `ql`: List all job id
-  6. `qn`: Query job name by given a job id
-  7.  `qln`: List all job id and names
-  8.  `ex2f`: Remove the lines by a file
+  1. [`qcreate`](#qcreate): Create a job file(cpu/gpu)
+  2. [`qcount`](#qcount): Count the number of cpu cores and jobs for the user or all users
+  3. [`qdelall`](#qdelall): Delete all jobs
+  4. [`qd`](#qd): Delete jobs by given two id(start and end)
+  5. [`ql`](#ql): List all job id
+  6. [`qn`](#qn): Query job name by given a job id
+  7.  [`qln`](#qln): List all job id and names
+  8.  [`ex2f`](#ex2f): Remove the lines by a file
 
 ## Example
-`qcreate`
+### `qcreate`
 ```bash
 qcreate
 ```
 > Create a job file(cpu/gpu) step by step
 ---
 
-`qcount`
+### `qcount`
 ```bash
 qcount
 ```
@@ -44,41 +44,41 @@ qcount -a
 > Count the the number of cpu cores and jobs "all" user use separately
 ---
 
-`qdelall`
+### `qdelall`
 ```bash
 qdelall
 ```
 > delete your all jobs
 ---
 
-`qd`
+### `qd`
 ```bash
 qd 10 100
 ```
 > delete your jobs by given job id from 10 to 100
 ---
-`ql`
+### `ql`
 ```bash
 ql
 ```
 > list your all job id
 ---
 
-`qn`
+### `qn`
 ```bash
 qn 100
 ```
 > query your job name by given job id 100
 ---
 
-`qln`
+### `qln`
 ```bash
 qln
 ```
 > List all job id and names
 ---
 
-`ex2f`
+### `ex2f`
 
 ```bash
 ex2f -s file_1.txt -e file_2.txt > output.txt
