@@ -1,12 +1,15 @@
 #!/bin/bash
 # Query job name by given a job id
-
+if [[ $# -eq 0 || $# -gt 2 ]]; then
+    echo "Illegal number of parameters" >&2
+    exit 1
+fi
 job_id=$1
 order=$2
 tmpfile=$(mktemp -p ~)
 trap "rm $tmpfile" EXIT
-if tracejob $job_id  > $tmpfile 2> /dev/null; then
-    cat $tmpfile |grep "job name"|sed "s/.*job name = \(.*\),.*/\1 $2/"
+if qstat -f $job_id  > $tmpfile 2> /dev/null; then
+    cat $tmpfile |grep "Job_Name"|sed "s/.*Job_Name = \(.*\)/\1 $2/"
 else
     echo "\@_@/expiration"
 fi
