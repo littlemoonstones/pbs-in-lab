@@ -1,8 +1,9 @@
 #!/bin/bash
+dir_path=$(dirname "$0")
+lib_path=$dir_path/lib
 tmp_file=$(mktemp -p .)
 users=$(mktemp -p .)
 nums=$(mktemp -p .)
-# tmp1=$(mktemp -p .)
 trap "rm $tmp_file $users $nums" EXIT
 
 function sum_job_cpu(){
@@ -13,13 +14,7 @@ function sum_job_cpu(){
     qstat -u $user|awk 'NR>5 {x+=$6;y+=$7}END {print x,y}'|xargs -i echo {} ${array[1]}
 }
 
-function makeDashedLine(){
-    length=$1
-    printf -- '-%.0s' $(eval echo {1..$length})
-}
-
 export -f sum_job_cpu
-export -f makeDashedLine
 
 isShowAll=false
 while getopts 'a' OPT; do
@@ -42,9 +37,9 @@ user_length=$(wc -L < $users)
 njobs_length=$(( $(awk -F, '{print $1}' $nums | wc -L) + 2))
 ncpus_length=$(( $(awk -F, '{print $2}' $nums | wc -L) + 2))
 
-user_header=$(makeDashedLine $user_length)
-ncpus_header=$(makeDashedLine $ncpus_length)
-njobs_header=$(makeDashedLine $njobs_length)
+user_header=$($lib_path/makeDashedLine.sh $user_length)
+ncpus_header=$($lib_path/makeDashedLine.sh $ncpus_length)
+njobs_header=$($lib_path/makeDashedLine.sh $njobs_length)
 
 # generate tmp result file
 echo "User,njobs,ncpus," > $tmp_file
