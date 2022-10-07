@@ -18,13 +18,15 @@ There are serveral commands:
   1. [`qcreate`](#qcreate): Create a job file(cpu/gpu)
   2. [`qme`](#qme): Display the cpu and memery usage of your jobs
      > Notice: If your job is running with **mpi**, it might not work properly.
-  3. [`qcount`](#qcount): Count the number of cpu cores and jobs for the user or all users
-  4. [`qdelall`](#qdelall): Delete all jobs
-  5. [`qd`](#qd): Delete jobs by given two id(start and end)
-  6. [`ql`](#ql): List all job id
-  7. [`qn`](#qn): Query job name by given a job id
-  8.  [`qln`](#qln): List all job id and names
-  9.  [`ex2f`](#ex2f): Remove the lines by a file
+  3. [`gme`](#gme): Mark your job running on GPU node if the job does not use GPU
+     > Notice: Before using the command, please set the variable like `export LAB_GPU_HOST=NAME`. (p.s. `NAME` is the name of your GPU host.)
+  4. [`qcount`](#qcount): Count the number of cpu cores and jobs for the user or all users
+  5. [`qdelall`](#qdelall): Delete all jobs
+  6. [`qd`](#qd): Delete jobs by given two id(start and end)
+  7. [`ql`](#ql): List all job id
+  8. [`qn`](#qn): Query job name by given a job id
+  9.  [`qln`](#qln): List all job id and names
+  10. [`ex2f`](#ex2f): Remove the lines by a file
 
 ## Example
 ### `qcreate`
@@ -44,6 +46,15 @@ qme
 qme USER_NAME
 ```
 > Peek at other user's the cpu and memery usage of jobs
+---
+
+### `gme`
+```bash
+gme
+```
+> Mark your job running on GPU node if the job does not use GPU
+> - Green text: the job uses the GPU indeed.
+> - Red Background: the job does not use the GPU.
 ---
 
 ### `qcount`

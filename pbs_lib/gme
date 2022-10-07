@@ -1,0 +1,38 @@
+#!/bin/bash
+
+user=$USER
+dir_path=$(realpath $0|xargs dirname)
+lib_path=$dir_path/lib
+nvidia_tmp=$(mktemp -p ~)
+tmp_output=$(mktemp -p ~)
+qstat_output=$(mktemp -p ~)
+
+BLUE="\033[0;32m"
+RED="\033[0;41m"
+ENDCOLOR="\033[0m"
+
+trap "rm $nvidia_tmp $qstat_output $tmp_output" EXIT
+ssh $LAB_GPU_HOST << EOF
+    nvidia-smi|sed -n '/PID/,\$p'|sed -e "1,2d" -e "\$ d"|awk '{print \$2,\$3}'|sort -h|uniq -w 2|cut -d" " -f2| while read pid
+    do
+        $lib_path/findparent \$pid >> $nvidia_tmp
+    done
+    exit 0
+EOF
+if [[ $? -ne 0 ]]; then
+    echo -e "${RED}Please set your LAB_GPU_HOST${ENDCOLOR}"
+    exit 255
+fi
+qstat -u $USER > $qstat_output
+awk '(NR>5 && $3=="gpu"){print $0}' $qstat_output > $tmp_output
+
+
+head -5 $qstat_output
+for job_id in $(awk '(NR>5 && $3=="gpu") {gsub(".centos7", "");print($1)}' $qstat_output)
+do
+    if grep $job_id $nvidia_tmp > /dev/null;then
+        echo -e "$BLUE$(grep $job_id $tmp_output)" $ENDCOLOR
+    else
+        echo -e "$RED$(grep $job_id $tmp_output)" $ENDCOLOR
+    fi
+done

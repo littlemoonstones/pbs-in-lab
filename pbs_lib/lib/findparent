@@ -1,0 +1,25 @@
+#!/bin/bash
+
+function getParent(){
+    ps -o ppid= -p $1
+}
+
+function findName(){
+    ps -u $USER|awk -v pid=$1 '$1==pid {print $4}'
+}
+
+i=0
+pid=$1
+while [[ $i -lt 4 && $pid -gt 1 ]]
+do
+    ppid=$(getParent $pid)
+    name=$(findName $ppid)
+    if echo $name|grep centos > /dev/null; then
+        job_id=$(echo $name|cut -d. -f1)
+        echo $job_id
+        exit 0
+    fi
+    pid=$ppid
+    i=$((i+1))
+done
+exit 1
