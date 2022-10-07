@@ -12,7 +12,7 @@ RED="\033[0;41m"
 ENDCOLOR="\033[0m"
 
 trap "rm $nvidia_tmp $qstat_output $tmp_output" EXIT
-ssh $LAB_GPU_HOST << EOF
+ssh -q $LAB_GPU_HOST << EOF
     nvidia-smi|sed -n '/PID/,\$p'|sed -e "1,2d" -e "\$ d"|awk '{print \$2,\$3}'|sort -h|uniq -w 2|cut -d" " -f2| while read pid
     do
         $lib_path/findparent \$pid >> $nvidia_tmp
