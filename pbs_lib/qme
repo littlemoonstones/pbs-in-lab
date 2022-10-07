@@ -1,0 +1,56 @@
+#!/bin/bash
+# Query job status
+
+dir_path=$(dirname "$0")
+lib_path=$dir_path/lib
+
+if [[ $# -eq 0 ]]; then
+    user=$USER
+else
+    user=$1
+fi
+
+tmpfile=$(mktemp -p ~)
+result_tmp=$(mktemp -p ~)
+trap "rm $tmpfile $result_tmp" EXIT
+
+function getInfomation(){
+    job_id=$1
+    order=$2
+    tmp=$(mktemp -p . $1-XXXXXXX)
+    trap "rm $tmp" EXIT
+    qstat -f $job_id > $tmp
+    name=$(grep "Job_Name" $tmp | sed "s/.*Job_Name = \(.*\)/\1/"|cut -c 1-20)
+    cpu_usage=$(grep "resources_used.cpupercent" $tmp | tr -d " " |cut -d"=" -f2)
+    ncpus=$(grep "resources_used.ncpus" $tmp | tr -d " " |cut -d"=" -f2)
+    mem_usage=$(grep "resources_used.mem" $tmp | tr -d " " |cut -d"=" -f2 | sed "s/kb//"|numfmt --to=si --from-unit K)
+    if [[ -z "$ncpus" ]]; then
+        echo "$job_id $name - - - -"
+    else
+        echo "$job_id $name $ncpus $cpu_usage $mem_usage $order"
+    fi
+}
+
+export -f getInfomation
+
+$dir_path/ql $user|awk '{print $1" "NR}' | \
+    xargs -n2 -P16 -i bash -c 'getInfomation {}'| \
+    sort -k 6 -n|cut -d " " -f1-5 | tr " " "," > $result_tmp
+
+jobID_length=$(( $(awk -F, '{print $1}' $result_tmp | wc -L) + 2))
+name_length=$(( $(awk -F, '{print $2}' $result_tmp | wc -L) + 2))
+ncpus_length=$(( $(awk -F, '{print $3}' $result_tmp | wc -L) + 4))
+cpuUsage_length=9
+memUsage_length=9
+
+jobID_header=$( $lib_path/makeDashedLine.sh $jobID_length )
+name_header=$( $lib_path/makeDashedLine.sh $name_length )
+ncpus_header=$( $lib_path/makeDashedLine.sh $ncpus_length )
+cpuUsage_header=$( $lib_path/makeDashedLine.sh $cpuUsage_length )
+memUsage_header=$( $lib_path/makeDashedLine.sh $memUsage_length )
+
+# generate tmp result file
+echo "job id,name,ncpus,cpu(%),mem usage" > $tmpfile
+echo "$jobID_header,$name_header,$ncpus_header,$cpuUsage_header,$memUsage_header" >> $tmpfile
+cat $result_tmp >> $tmpfile
+column -t -s "," $tmpfile
