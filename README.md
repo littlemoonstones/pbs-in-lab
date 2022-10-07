@@ -16,13 +16,15 @@ git pull && ./install.sh
 ## Usage
 There are serveral commands:
   1. [`qcreate`](#qcreate): Create a job file(cpu/gpu)
-  2. [`qcount`](#qcount): Count the number of cpu cores and jobs for the user or all users
-  3. [`qdelall`](#qdelall): Delete all jobs
-  4. [`qd`](#qd): Delete jobs by given two id(start and end)
-  5. [`ql`](#ql): List all job id
-  6. [`qn`](#qn): Query job name by given a job id
-  7.  [`qln`](#qln): List all job id and names
-  8.  [`ex2f`](#ex2f): Remove the lines by a file
+  2. [`qme`](#qme): Display the cpu and memery usage of your jobs
+     > Notice: If your job is running with **mpi**, it might not work properly.
+  3. [`qcount`](#qcount): Count the number of cpu cores and jobs for the user or all users
+  4. [`qdelall`](#qdelall): Delete all jobs
+  5. [`qd`](#qd): Delete jobs by given two id(start and end)
+  6. [`ql`](#ql): List all job id
+  7. [`qn`](#qn): Query job name by given a job id
+  8.  [`qln`](#qln): List all job id and names
+  9.  [`ex2f`](#ex2f): Remove the lines by a file
 
 ## Example
 ### `qcreate`
@@ -30,6 +32,18 @@ There are serveral commands:
 qcreate
 ```
 > Create a job file(cpu/gpu) step by step
+---
+
+### `qme`
+```bash
+qme
+```
+> Display the cpu and memery usage of your jobs
+
+```bash
+qme USER_NAME
+```
+> Peek at other user's the cpu and memery usage of jobs
 ---
 
 ### `qcount`
