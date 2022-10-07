@@ -1,4 +1,8 @@
 #!/bin/bash
 # List all job id
-
-qstat -u $USER | awk '(NR>5) {print($1)}'|cut -d. -f1
+if [[ $# -eq 0 ]]; then
+    user=$USER
+else
+    user=$1
+fi
+qstat -u $user  | awk '(NR>5) {print($1)}'|cut -d. -f1
