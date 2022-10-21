@@ -8,11 +8,14 @@ args = parser.parse_args()
 source_set = set()
 with open(args.source, "r")as fs:
     for s in fs.readlines():
-        source_set.add(int(s.replace('\n', '')))
+        source_set.add(s.replace('\n', ''))
 
 with open(args.exculsive, "r")as fs:
     for s in fs.readlines():
-        source_set.remove(int(s.replace('\n', '')))
+        try:
+            source_set.remove(s.replace('\n', ''))
+        except KeyError:
+            continue
 
 for s in source_set:
     print(s)
